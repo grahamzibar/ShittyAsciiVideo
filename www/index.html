@@ -7,10 +7,16 @@
 	<link href="style.css" rel="stylesheet" type="text/css">
 </head>
 <body>
-	<input id="file" type="file" />
+	<label>Frame Duration</label><input id="frames" type="number" value="100" /> *Duration of each frame (ms)
 	<br />
 	<br />
-	<pre id="output">Please load a video.</pre>
+	<label>Resolution</label><input id="res" type="number" value="2" /> *1 = every pixel, 2 = every other pixel, etc..
+	<br />
+	<br />
+	<label>Video</label><input id="file" type="file" />
+	<br />
+	<br />
+	<label>&nbsp;</label><pre id="output">Please load a video.</pre>
 	<p>
 		Press the <em>SPACE BAR</em> to toggle play and pause.
 	</p>

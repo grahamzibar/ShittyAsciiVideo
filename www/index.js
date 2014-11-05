@@ -12,9 +12,9 @@ var CHARS = {
 	2: ":",
 	3: "*",
 	4: "+",
-	5: "#",
-	6: "W",
-	7: "@"
+	5: "@",
+	6: "V",
+	7: "#"
 };
 
 
@@ -23,6 +23,8 @@ var _input = document.getElementById('file');
 var _output = document.getElementById('output');
 var _video = document.createElement('video');
 var _canvas = document.createElement("canvas");
+var _frame_d = document.getElementById('frames');
+var _res_f = document.getElementById('res');
 var _context;
 
 
@@ -67,7 +69,7 @@ function draw_frame() {
 		return;
 	
 	// WORK ON THESE ARGUMENTS.... THIS IS A TAD MESSY
-	draw_ascii(_output, _video, FRAME_FREQ, RESOLUTION, _context, _canvas.width, _canvas.height, CHARS);
+	draw_ascii(_output, _video, _frame_d.value, _res_f.value, _context, _canvas.width, _canvas.height, CHARS);
 	_timer = setTimeout(draw_frame, FRAME_FREQ);
 };
 
@@ -140,6 +142,7 @@ function onplay(e) {
 function onload(e) {
 	_loaded = true;
 	init_canvas(_video.videoWidth, _video.videoHeight);
+	play_video();
 };
 
 function onend(e) {

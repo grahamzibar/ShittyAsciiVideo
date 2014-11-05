@@ -3,6 +3,7 @@ body {
 	font-size:13px;
 	padding:32px;
 	margin:0;
+	vertical-align:top;
 }
 
 #output {
@@ -16,4 +17,12 @@ body {
 	
 	line-height:10px;
 	/* text-align:center; */
+}
+
+label {
+	display:inline-block;
+	width:140px;
+	text-align:right;
+	padding-right:20px;
+	font-weight:bold;
 }
