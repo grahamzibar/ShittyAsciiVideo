@@ -25,14 +25,25 @@ var _video = document.createElement('video');
 var _canvas = document.createElement("canvas");
 var _frame_d = document.getElementById('frames');
 var _res_f = document.getElementById('res');
+var _export_btn = document.getElementById('export_btn');
 var _context;
+var _audio_context = new AudioContext();
 
+var _audio_input = _audio_context.createMediaElementSource(_video);
+_audio_input.connect(_audio_context.destination);
+
+var _recorder = new Recorder(_audio_input, {
+	workerPath: 'recorderWorker.js',
+	callback: onwav
+});
+
+var _encoded_data = new Array();
 
 // APP STATES
 var _playing = false;
 var _loaded = false;
 var _timer = null;
-
+var _exporting = false;
 
 // API & METHODS
 function init_canvas(w, h) {
@@ -59,31 +70,53 @@ function play_video() {
 };
 
 function pause_video() {
+	if (!_loaded)
+		return;
 	_playing = false;
 	_video.pause();
 	clearTimeout(_timer);
+};
+
+function export_video() {
+	if (_exporting || !_loaded)
+		return;
+	_exporting = true;
+	
+	pause_video();
+	
+	_video.currentTime = 0;
+	_video.addEventListener('ended', onexportend, false);
+	
+	play_video();
+	_recorder.record();
 };
 
 function draw_frame() {
 	if (!_playing)
 		return;
 	
-	// WORK ON THESE ARGUMENTS.... THIS IS A TAD MESSY
-	draw_ascii(_output, _video, _frame_d.value, _res_f.value, _context, _canvas.width, _canvas.height, CHARS);
+	// WORK ON THESE ARGUMENTS.... THIS IS A TAD MESSY.... I should also have some separate functions?
+	draw_ascii(_output, _video, _frame_d.value, _res_f.value, _context, _canvas.width, _canvas.height, CHARS, _exporting, _encoded_data);
 	_timer = setTimeout(draw_frame, FRAME_FREQ);
 };
 
-function draw_ascii(o, vid, fr, res, cxt, w, h, crs) {
+function draw_ascii(o, vid, fr, res, cxt, w, h, crs, exp, data) {
 		o.innerHTML = '';
 		
 		cxt.drawImage(vid, 0, 0, w, h);
 		var img = cxt.getImageData(0, 0, w, h);
 		
-		for (var i = 0, pxls = img.data, l = pxls.length, s = 4, r = w * s; i < l; i += r * res) {
+		for (var x = 0, i = 0, pxls = img.data, l = pxls.length, s = 4, r = w * s; i < l; i += r * res, x++) {
 			var line = '';
-			for (var j = i, t = j + r; j < t; j += s * res) {
+			if (exp)
+				data[x] = new Array();
+			for (var y = 0, j = i, t = j + r; j < t; j += s * res, y++) {
 				// Here we take a weighted average of rgb and assign it as a single colour.
 				var grey = pxls[j] * 0.2126 + pxls[j + 1] * 0.7152 + pxls[j + 2] * 0.0722;
+				
+				if (exp)
+					data[x][y] = grey;
+				
 				var c;
 				
 				if (grey > 250)
@@ -113,7 +146,8 @@ function draw_ascii(o, vid, fr, res, cxt, w, h, crs) {
 
 // EVENT HANDLERS
 function onkeyup(e) {
-	//console.log(e.which);
+	if (_exporting)
+		return;
 	switch(e.which) {
 		case 32:
 			if (_playing)
@@ -150,12 +184,39 @@ function onend(e) {
 	clearTimeout(_timer);
 };
 
+function onexport(e) {
+	export_video();
+};
+
+function onexportend(e) {
+	alert('Exported!');
+	_exporting = false;
+	_video.removeEventListener('ended', onexportend, false);
+	_recorder.stop();
+	_recorder.exportWAV();
+};
+
+function onwav(blob) {
+	var data = {
+		frame_duration: _frame_d.value,
+		audio_track: 'output.wav',
+		frames: _encoded_data
+	};
+	
+	Recorder.forceDownload(blob);
+	Recorder.forceDownload(
+		new Blob([JSON.stringify(data)], { type:'text/json' }),
+		'output.asciiv'
+	);
+};
+
 // EVENTS
 document.addEventListener('keyup', onkeyup, false);
 _input.addEventListener('change', onfile, false);
 _video.addEventListener('play', onplay, false);
 _video.addEventListener('canplaythrough', onload, false);
 _video.addEventListener('ended', onend, false);
+_export_btn.addEventListener('click', onexport, false);
 
 
 /*

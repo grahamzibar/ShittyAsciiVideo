@@ -5,8 +5,20 @@
 	<title>Shitty Ascii Video Converter</title>
 	
 	<link href="style.css" rel="stylesheet" type="text/css">
+	<script type="text/javascript" src="recorder.js"></script>
 </head>
 <body>
+	<h2>Shitty Ascii Video Converter</h2>
+	<p>
+		Load a video from your computer to be converted.  Once loaded, the video
+		plays in a loop.
+		<br />
+		Here you can play with framerate and resolution in
+		realtime.  Once you're satisfied, press the 'EXPORT' button.
+	</p>
+	<p>
+		Press the <em>SPACE BAR</em> to toggle play and pause.<br />
+	</p>
 	<label>Frame Duration</label><input id="frames" type="number" value="100" /> *Duration of each frame (ms)
 	<br />
 	<br />
@@ -16,10 +28,10 @@
 	<label>Video</label><input id="file" type="file" />
 	<br />
 	<br />
+	<label>&nbsp;</label><button id="export_btn">Export</button>
+	<br />
+	<br />
 	<label>&nbsp;</label><pre id="output">Please load a video.</pre>
-	<p>
-		Press the <em>SPACE BAR</em> to toggle play and pause.
-	</p>
 	
 	<script type="text/javascript" src="index.js"></script>
 </body>
